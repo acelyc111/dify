@@ -1,13 +1,30 @@
 import logging
+import time
 from collections.abc import Generator
+from functools import wraps
 from typing import Union
 
 from flask import Flask
+from prometheus_client import Histogram, generate_latest, start_http_server
 
 from configs import dify_config
 from extensions.storage.base_storage import BaseStorage
 from extensions.storage.storage_type import StorageType
 
+
+REQUEST_LATENCY = Histogram('request_latency_seconds', 'Histogram of request latency in seconds',
+                                    buckets=[0.1, 0.5, 1, 2, 5, 10])
+
+def timeit(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Function '{func.__name__}' executed in {elapsed_time:.4f} seconds.")
+        return result
+    return wrapper
 
 class Storage:
     def __init__(self):
