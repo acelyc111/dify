@@ -1,7 +1,7 @@
 """Abstract interface for document loader implementations."""
 
 from collections.abc import Iterator
-from typing import Optional, cast
+from typing import cast
 
 from core.rag.extractor.blob.blob import Blob
 from core.rag.extractor.extractor_base import BaseExtractor
@@ -10,17 +10,16 @@ from extensions.ext_storage import storage
 
 
 class PdfExtractor(BaseExtractor):
+    _FILE_CACHE_KEY = "dify:pdf_extractor_file_cache_key:{}"
+
     """Load pdf files.
-
-
     Args:
         file_path: Path to the file to load.
     """
-
-    def __init__(self, file_path: str, file_cache_key: Optional[str] = None):
+    def __init__(self, file_path: str):
         """Initialize with file path."""
         self._file_path = file_path
-        self._file_cache_key = file_cache_key
+        self._file_cache_key = self._FILE_CACHE_KEY.format(file_path)
 
     def extract(self) -> list[Document]:
         plaintext_file_exists = False
